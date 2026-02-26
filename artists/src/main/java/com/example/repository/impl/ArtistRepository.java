@@ -7,29 +7,30 @@ import com.example.model.Artist;
 import com.example.repository.IArtistRepository;
 
 public class ArtistRepository implements IArtistRepository {
+    private List<Artist> artists;
+    private Integer conter = 1;
 
     @Override
     public void save(Artist artist) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
+        artist.setId(conter++);
+        artists.add(artist);
     }
 
     @Override
     public List<Artist> findAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+        return artists;
     }
 
     @Override
-    public Optional<Artist> findByName(Integer name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByName'");
+    public Optional<Artist> findByName(String name) {
+        return artists.stream()
+                .filter(u -> u.getName().equals(name))
+                .findFirst();
     }
 
     @Override
     public boolean delete(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        return artists.removeIf(artist -> artist.getId().equals(id));
     }
-    
+
 }
