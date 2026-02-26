@@ -18,26 +18,23 @@ public class ArtistService implements IArtistService{
 
     @Override
     public void createArtist(Artist artist) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createArtist'");
+        artistRepository.save(artist);
     }
 
     @Override
     public List<Artist> getAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAll'");
+        return artistRepository.findAll();
     }
+    
 
     @Override
-    public Optional<Artist> findByName(Integer name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByName'");
+    public Optional<Artist> findByName(String name) {
+        return artistRepository.findByName(name);
     }
 
     @Override
     public boolean deleteArtist(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteArtist'");
+        return artistRepository.delete(id);
     }
 
 

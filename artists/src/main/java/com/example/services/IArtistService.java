@@ -8,6 +8,6 @@ import com.example.model.Artist;
 public interface IArtistService {
     public void createArtist(Artist artist);
     public List<Artist> getAll();
-    public Optional<Artist> findByName(Integer name);
+    public Optional<Artist> findByName(String name);
     public boolean deleteArtist(Integer id);
 }

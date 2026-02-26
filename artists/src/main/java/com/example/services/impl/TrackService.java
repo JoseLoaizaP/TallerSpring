@@ -17,20 +17,17 @@ public class TrackService implements ITrackService{
 
     @Override
     public void createTrack(Track track) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createTrack'");
+        trackRepository.save(track);
     }
 
     @Override
     public List<Track> getAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAll'");
+        return trackRepository.findAll();
     }
 
     @Override
     public boolean deleteTrack(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteTrack'");
+        return trackRepository.delete(id);
     }
 
 }
