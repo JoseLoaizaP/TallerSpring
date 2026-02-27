@@ -1,10 +1,8 @@
 package com.example.context;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import com.example.config.AppConfig;
-
 
 //Los que hagan xml modifiquen esto
 public class ContextSingleton {
@@ -12,7 +10,7 @@ public class ContextSingleton {
     private ConfigurableApplicationContext context;
     
     private ContextSingleton() {
-        this.context = new AnnotationConfigApplicationContext(AppConfig.class);
+        this.context = new ClassPathXmlApplicationContext("beans.xml");
     }
     
     public static synchronized ContextSingleton getInstance() {

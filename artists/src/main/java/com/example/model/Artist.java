@@ -45,7 +45,6 @@ public class Artist {
         this.nationality = nationality;
     }
 
-
     public List<Track> getTracks() {
         return tracks;
     }

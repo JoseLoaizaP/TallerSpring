@@ -9,12 +9,11 @@ import com.example.model.Track;
 import com.example.repository.IArtistRepository;
 import com.example.repository.ITrackRepository;
 
+
 public class ArtistRepository implements IArtistRepository {
-    private List<Artist> artists;
+    private List<Artist> artists = new ArrayList<>();
     private Integer conter = 1;
     final ITrackRepository trackRepository;
-
-    
 
     public ArtistRepository(ITrackRepository trackRepository) {
         this.trackRepository = trackRepository;

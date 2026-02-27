@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="ArtistRepository" class="com.example.repository.impl.ArtistRepository">
+    <constructor-arg ref="TrackRepository"/></bean>
+
+    <bean id="TrackRepository" class="com.example.repository.impl.TrackRepository"></bean>
+
+    <bean id="ArtistService" class="com.example.services.impl.ArtistService">
+     <constructor-arg ref="ArtistRepository"/></bean>
+
+    <bean id="TrackService" class="com.example.services.impl.TrackService">
+    <constructor-arg ref="TrackRepository"/>
+    </bean>
+
+</beans>
