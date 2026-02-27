@@ -4,33 +4,43 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.model.Artist;
+import com.example.repository.IArtistRepository;
 import com.example.services.IArtistService;
+import com.example.model.Track;
 
 public class ArtistService implements IArtistService{
 
+    private final IArtistRepository artistRepository;
+
+
+    public ArtistService(IArtistRepository artistRepository) {
+        this.artistRepository = artistRepository;
+    }
+
     @Override
     public void createArtist(Artist artist) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createArtist'");
+        artistRepository.save(artist);
     }
 
     @Override
     public List<Artist> getAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAll'");
+        return artistRepository.findAll();
     }
+    
 
     @Override
-    public Optional<Artist> findByName(Integer name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByName'");
+    public Optional<Artist> findByName(String name) {
+        return artistRepository.findByName(name);
     }
 
     @Override
     public boolean deleteArtist(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteArtist'");
+        return artistRepository.delete(id);
     }
 
+    @Override
+    public List<Track> getArtistsTracks(String name) {
+        return artistRepository.getArtistsTracks(name);
+    }
 
 }
