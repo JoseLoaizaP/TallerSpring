@@ -86,6 +86,15 @@ public void doGet(HttpServletRequest request, HttpServletResponse response) thro
     out.println("<input type='submit' value='deleteTrack' name='action'>");
     out.println("</form>");
 
+    out.println("<h2>Create Track</h2>");
+    out.println("<form method='post' action='artists'>");
+    out.println("Title: <input type='text' name='title'><br>");
+    out.println("Album: <input type='text' name='album'><br>");
+    out.println("Genre: <input type='text' name='genre'><br>");
+    out.println("Duration: <input type='number' name='duration'><br>");
+    out.println("<input type='submit' value='createTrack' name='action'>");
+    out.println("</form>");
+
     out.println("<h2>Assign Track to Artist</h2>");
     out.println("<form method='post' action='artists'>");
     out.println("Artist Name: <input type='text' name='artistName'><br>");
@@ -123,6 +132,9 @@ public void doGet(HttpServletRequest request, HttpServletResponse response) thro
                 break;
                 case "assignTrack":
                 doAssignTrack(request, response);
+                break;
+            case "createTrack":
+                doCreateTrack(request, response);
                 break;
             default:
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action: " + action);
@@ -205,7 +217,6 @@ public void doGet(HttpServletRequest request, HttpServletResponse response) thro
             var out = response.getWriter();
             var tracks = trackService.getAll();
 
-            out.println("<p><b>LIST VERSION 3</b></p>");
             out.println("<h2>All Tracks</h2>");
             if (tracks == null || tracks.isEmpty()) { out.println("<p>No tracks registered.</p>"); return; }
 
@@ -294,5 +305,33 @@ public void doGet(HttpServletRequest request, HttpServletResponse response) thro
 
         response.getWriter().println("<p>Track assigned successfully</p>");
         response.getWriter().println("<a href='" + request.getContextPath() + "/artists'>Back</a>");
+    }
+
+        public void doCreateTrack(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        TrackService trackService = context.getBean(TrackService.class);
+        ArtistService artistService = context.getBean(ArtistService.class);
+
+        String title = request.getParameter("title");
+        String albumTitle = request.getParameter("album");
+        String genre = request.getParameter("genre");
+        String durationStr = request.getParameter("duration");
+
+        if (title == null || title.isEmpty() || albumTitle == null || albumTitle.isEmpty() ||
+            genre == null || genre.isEmpty() || durationStr == null || durationStr.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "All fields are required");
+            return;
+        }
+
+        int duration;
+        try {
+            duration = Integer.parseInt(durationStr);
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Duration must be a number");
+            return;
+        }
+
+        trackService.createTrack(new com.example.model.Track(title, genre, duration, albumTitle));
+
+        response.sendRedirect(request.getContextPath() + "/artists");
     }
         }
