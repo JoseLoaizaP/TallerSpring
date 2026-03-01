@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.model.Artist;
+import com.example.model.Track;
 import com.example.repository.IArtistRepository;
 import com.example.services.IArtistService;
 
@@ -37,5 +38,9 @@ public class ArtistService implements IArtistService{
         return artistRepository.delete(id);
     }
 
+    @Override
+    public List<Track> getArtistsTracks(String name) {
+        return artistRepository.getArtistsTracks(name);
+    }   
 
 }

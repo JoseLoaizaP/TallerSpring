@@ -87,4 +87,11 @@ public class ArtistRepository implements IArtistRepository {
         artists.clear();
     }
 
+    public List<Track> getArtistsTracks(String name) {
+        Optional<Artist> artistOpt = findByName(name);
+        if (artistOpt.isPresent()) {
+            return artistOpt.get().getTracks();
+        }
+        return List.of();
+    }
 }

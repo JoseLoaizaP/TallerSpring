@@ -1,6 +1,8 @@
 package com.example.services.impl;
 
 import java.util.List;
+import java.util.Optional;
+
 import com.example.model.Track;
 
 import com.example.repository.ITrackRepository;
@@ -30,4 +32,8 @@ public class TrackService implements ITrackService{
         return trackRepository.delete(id);
     }
 
+    @Override
+    public Optional<Track> findById(Integer id) {
+        return trackRepository.findById(id);
+    }
 }

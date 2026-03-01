@@ -2,6 +2,7 @@ package com.example.repository.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.example.model.Track;
 
@@ -56,6 +57,13 @@ public class TrackRepository implements ITrackRepository {
 
     public void destroy(){
         tracks.clear();
+    }
+
+    @Override
+    public Optional<Track> findById(Integer id) {
+        return tracks.stream()
+                .filter(u -> u.getId().equals(id))
+                .findFirst();
     }
 
 }
