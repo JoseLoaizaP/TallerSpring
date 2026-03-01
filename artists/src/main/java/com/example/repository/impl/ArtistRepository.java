@@ -1,20 +1,21 @@
 package com.example.repository.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.stereotype.Repository;
+
 import com.example.model.Artist;
 import com.example.model.Track;
 import com.example.repository.IArtistRepository;
 import com.example.repository.ITrackRepository;
 
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.stereotype.Repository;
-
 import jakarta.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @Repository
-@DependsOn("trackRepository") 
+@DependsOn("trackRepository")
 public class ArtistRepository implements IArtistRepository {
 
     private final ITrackRepository trackRepository;
@@ -25,32 +26,77 @@ public class ArtistRepository implements IArtistRepository {
     public ArtistRepository(ITrackRepository trackRepository) {
         this.trackRepository = trackRepository;
     }
-
-    //use iag
+//use iag
     @PostConstruct
     public void init() {
         artists = new ArrayList<>();
 
-        String[] nationalities = {
-                "USA","Colombia","UK","Canada","Spain",
-                "Brazil","Mexico","Argentina","France","Germany"
+
+        String[] artistByTrack = {
+            "Michael Jackson",
+            "Nirvana",
+            "Queen",
+            "Bob Dylan",
+            "John Lennon",
+            "The Beatles",
+            "The Beatles",
+            "Eagles",
+            "Led Zeppelin",
+            "Guns N’ Roses",
+            "Oasis",
+            "Leonard Cohen",
+            "Adele",
+            "Adele",
+            "Ed Sheeran",
+            "The Weeknd",
+            "Mark Ronson ft. Bruno Mars",
+            "Bee Gees",
+            "ABBA",
+            "Whitney Houston",
+            "Céline Dion",
+            "Britney Spears",
+            "Beyoncé",
+            "Beyoncé ft. Jay-Z",
+            "Eminem",
+            "Dr. Dre ft. Snoop Dogg",
+            "The Notorious B.I.G.",
+            "2Pac ft. Dr. Dre",
+            "Kendrick Lamar",
+            "Drake",
+            "Billie Eilish",
+            "a-ha",
+            "The Police",
+            "Toto",
+            "Bon Jovi",
+            "AC/DC",
+            "Prince",
+            "Stevie Wonder",
+            "Marvin Gaye",
+            "Aretha Franklin",
+            "Bob Marley & The Wailers",
+            "Bob Marley & The Wailers",
+            "Celia Cruz",
+            "Daddy Yankee",
+            "Luis Fonsi ft. Daddy Yankee",
+            "Shakira ft. Wyclef Jean",
+            "Santana ft. Rob Thomas",
+            "Coldplay",
+            "The White Stripes",
+            "Daft Punk ft. Pharrell Williams"
         };
 
         List<Track> allTracks = trackRepository.findAll();
-        int trackIndex = 0;
 
-        for (int i = 1; i <= 10; i++) {
-            Artist a = new Artist("Artist " + i, nationalities[i - 1]);
+        for (int i = 0; i < allTracks.size(); i++) {
+            Track t = allTracks.get(i);
+
+            Artist a = new Artist(artistByTrack[i], "Unknown");
             a.setId(counter++);
             a.setTracks(new ArrayList<>());
 
-            for (int j = 0; j < 5; j++) {
-                Track t = allTracks.get(trackIndex++);
-                a.getTracks().add(t);
-
-                if (t.getArtists() == null) t.setArtists(new ArrayList<>());
-                t.getArtists().add(a);
-            }
+            a.getTracks().add(t);
+            if (t.getArtists() == null) t.setArtists(new ArrayList<>());
+            t.getArtists().add(a);
 
             artists.add(a);
         }
@@ -63,7 +109,7 @@ public class ArtistRepository implements IArtistRepository {
 
     @Override
     public void save(Artist artist) {
-        if (artists == null) init(); // blindaje
+        if (artists == null) init();
         artist.setId(counter++);
         if (artist.getTracks() == null) artist.setTracks(new ArrayList<>());
         artists.add(artist);
@@ -80,7 +126,6 @@ public class ArtistRepository implements IArtistRepository {
         if (found.isEmpty()) return false;
 
         Artist a = found.get();
-
         if (a.getTracks() != null) {
             for (Track t : a.getTracks()) {
                 if (t.getArtists() != null) {
@@ -88,12 +133,15 @@ public class ArtistRepository implements IArtistRepository {
                 }
             }
         }
-
         return artists.removeIf(ar -> ar.getId().equals(id));
     }
 
     @Override
     public List<Track> getArtistsTracks(String name) {
-        return findByName(name).map(Artist::getTracks).orElse(List.of());
+        Optional<Artist> artistOpt = findByName(name);
+        if (artistOpt.isPresent()) {
+            return artistOpt.get().getTracks();
+        }
+        return List.of();
     }
 }

@@ -1,6 +1,7 @@
 package com.example.services.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -30,5 +31,10 @@ public class TrackService implements ITrackService {
     @Override
     public boolean deleteTrack(Integer id) {
         return trackRepository.delete(id);
+    }
+    
+    @Override
+    public Optional<Track> findById(Integer id) {
+        return trackRepository.findById(id);
     }
 }

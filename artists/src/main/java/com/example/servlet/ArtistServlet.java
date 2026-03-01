@@ -2,6 +2,7 @@ package com.example.servlet;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.context.ApplicationContext;
 
@@ -11,10 +12,12 @@ import com.example.model.Track;
 import com.example.services.impl.ArtistService;
 import com.example.services.impl.TrackService;
 
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+@WebServlet("/artists")
 public class ArtistServlet extends HttpServlet{
 
      private ApplicationContext context;
@@ -45,6 +48,21 @@ public class ArtistServlet extends HttpServlet{
         response.getWriter().println("<input type='submit' value='deleteArtist' name='action'>");
         response.getWriter().println("</form>");
         response.getWriter().println("</body></html>");
+        response.getWriter().println("<h2>List Tracks</h2>");
+        response.getWriter().println("<form method='post' action='artists'>");
+        response.getWriter().println("<input type='submit' value='listTracks' name='action'>");
+        response.getWriter().println("</form>");
+        response.getWriter().println("<h2>Delete Track</h2>");
+        response.getWriter().println("<form method='post' action='artists'>");
+        response.getWriter().println("Id: <input type='number' name='id'><br>");
+        response.getWriter().println("<input type='submit' value='deleteTrack' name='action'>");
+        response.getWriter().println("</form>");
+        response.getWriter().println("<h2>Assign Track to Artist</h2>");
+        response.getWriter().println("<form method='post' action='artists'>");            
+        response.getWriter().println("Artist Name: <input type='text' name='artistName'><br>");
+        response.getWriter().println("Track Id: <input type='number' name='trackId'><br>");
+        response.getWriter().println("<input type='submit' value='assignTrack' name='action'>");
+        response.getWriter().println("</form>");   
         
     }
 
@@ -69,6 +87,12 @@ public class ArtistServlet extends HttpServlet{
                 break;
             case "listTracks":
                 doListTracks(request, response);
+                break;
+                case "deleteTrack":
+                doDeleteTrack(request, response);
+                break;
+                case "assignTrack":
+                doAssignTrack(request, response);
                 break;
             default:
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action: " + action);
@@ -145,50 +169,100 @@ public class ArtistServlet extends HttpServlet{
     }
 
         public void doListTracks(HttpServletRequest request, HttpServletResponse response) throws IOException {
+            TrackService trackService = context.getBean(TrackService.class);
+            response.setContentType("text/html");
+
+            var out = response.getWriter();
+            var tracks = trackService.getAll();
+
+            out.println("<p><b>LIST VERSION 3</b></p>");
+            out.println("<h2>All Tracks</h2>");
+            if (tracks == null || tracks.isEmpty()) { out.println("<p>No tracks registered.</p>"); return; }
+
+            out.println("<ul>");
+            for (Track t : tracks) {
+                String artists = (t.getArtists() == null || t.getArtists().isEmpty())
+                        ? "No artists"
+                        : String.join(", ", t.getArtists().stream().map(Artist::getName).toList());
+
+                out.println("<li>" + t.getTitle() + " (#" + t.getId() + ") - " + t.getGenre()
+                        + " - " + t.getDuration() + "s - Album: " + t.getAlbumTitle()
+                        + " | Artists: " + artists + "</li>");
+            }
+            out.println("</ul>");
+        }
+
+        public void doDeleteTrack(HttpServletRequest request, HttpServletResponse response) throws IOException {
+            TrackService trackService = context.getBean(TrackService.class);
+
+            String idStr = request.getParameter("id");
+            if (idStr == null || idStr.isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id is required");
+                return;
+            }
+
+            Integer id;
+            try {
+                id = Integer.parseInt(idStr);
+            } catch (NumberFormatException e) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id must be a number");
+                return;
+            }
+
+            boolean deleted = trackService.deleteTrack(id);
+
+            response.setContentType("text/html");
+            response.getWriter().println(deleted ? "<p>Track deleted successfully</p>" : "<p>Track not found</p>");
+            response.getWriter().println("<a href='" + request.getContextPath() + "/artists'>Back</a>");
+        }
+
+        public void doAssignTrack(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        ArtistService artistService = context.getBean(ArtistService.class);
         TrackService trackService = context.getBean(TrackService.class);
+
+        String artistName = request.getParameter("artistName");
+        String trackIdStr = request.getParameter("trackId");
 
         response.setContentType("text/html");
 
-        List<Track> tracks = trackService.getAll();
+        if (artistName == null || artistName.isEmpty() ||
+            trackIdStr == null || trackIdStr.isEmpty()) {
+            response.getWriter().println("<p>Artist name and Track id are required</p>");
+            return;
+        }
+        Integer trackId;
 
-        response.getWriter().println("<h2>All Tracks</h2>");
-
-        if (tracks == null || tracks.isEmpty()) {
-            response.getWriter().println("<p>No tracks registered.</p>");
-            response.getWriter().println("<a href='" + request.getContextPath() + "/artists'>Back</a>");
+        try {
+            trackId = Integer.parseInt(trackIdStr);
+        } catch (NumberFormatException e) {
+            response.getWriter().println("<p>Track id must be a number</p>");
             return;
         }
 
-        response.getWriter().println("<ul>");
+        Optional<Artist> artistOpt = artistService.findByName(artistName);
+        Optional<Track> trackOpt = trackService.findById(trackId);
 
-        for (Track t : tracks) {
-            response.getWriter().println("<li>");
-
-            response.getWriter().println("<b>Id:</b> " + t.getId() + "<br>");
-            response.getWriter().println("<b>Title:</b> " + t.getTitle() + "<br>");
-            response.getWriter().println("<b>Genre:</b> " + t.getGenre() + "<br>");
-            response.getWriter().println("<b>Duration:</b> " + t.getDuration() + "<br>");
-            response.getWriter().println("<b>Album Title:</b> " + t.getAlbumTitle() + "<br>");
-
-            response.getWriter().println("<b>Artists:</b> ");
-            if (t.getArtists() == null || t.getArtists().isEmpty()) {
-                response.getWriter().println("No artists");
-            } else {
-                for (int i = 0; i < t.getArtists().size(); i++) {
-                    Artist a = t.getArtists().get(i);
-                    response.getWriter().println(a.getName());
-                    if (i < t.getArtists().size() - 1) {
-                        response.getWriter().println(", ");
-                    }
-                }
-            }
-
-            response.getWriter().println("</li><br>");
+        if (artistOpt.isEmpty()) {
+            response.getWriter().println("<p>Artist not found</p>");
+            return;
         }
 
-        response.getWriter().println("</ul>");
-        response.getWriter().println("<a href='" + request.getContextPath() + "/artists'>Back</a>");
-    
-}
+        if (trackOpt.isEmpty()) {
+            response.getWriter().println("<p>Track not found</p>");
+            return;
+        }
 
-}
+        Artist artist = artistOpt.get();
+        Track track = trackOpt.get();
+
+        
+        if (!artist.getTracks().contains(track)) {
+            artist.getTracks().add(track);
+            track.getArtists().add(artist);
+        }
+
+        response.getWriter().println("<p>Track assigned successfully</p>");
+        response.getWriter().println("<a href='" + request.getContextPath() + "/artists'>Back</a>");
+    }
+        }
