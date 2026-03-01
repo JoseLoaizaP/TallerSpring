@@ -45,7 +45,7 @@ public class ArtistServlet extends HttpServlet{
         out.println("<h1>Lista de artistas</h1>");
 
         out.println("<table border='1'>");
-        out.println("<tr><th>ID</th><th>Name</th><th>Nacionality</th></tr>");
+        out.println("<tr><th>ID</th><th>Name</th><th>Nationality</th></tr>");
 
         for (Artist u : artists) {
             out.println("<tr>");
@@ -54,38 +54,64 @@ public class ArtistServlet extends HttpServlet{
             out.println("<td>" + u.getNationality() + "</td>");
             out.println("</tr>");
         }
+
         out.println("</table>");
 
-        response.setContentType("text/html");
-        response.getWriter().println("<h2>Create Artist</h2>");
-        response.getWriter().println("<form method='post' action='artists'>");
-        response.getWriter().println("Name: <input type='text' name='name'><br>");
-        response.getWriter().println("Nationality: <input type='text' name='nationality'><br>");
-        response.getWriter().println("<input type='submit' value='createArtist' name='action'>");
-        response.getWriter().println("</form>");
+        //crear arista
+        out.println("<h2>Create Artist</h2>");
+        out.println("<form method='post' action='artists'>");
+        out.println("Name: <input type='text' name='name'><br>");
+        out.println("Nationality: <input type='text' name='nationality'><br>");
+        out.println("<input type='submit' value='createArtist' name='action'>");
+        out.println("</form>");
 
+        //crear tema
+        out.println("<h2>Create Track</h2>");
+        out.println("<form method='post' action='artists'>");
+        out.println("Title: <input type='text' name='title'><br>");
+        out.println("Album: <input type='text' name='album'><br>");
+        out.println("Genre: <input type='text' name='genre'><br>");
+        out.println("Duration: <input type='number' name='duration'><br>");
+        out.println("<input type='submit' value='createTrack' name='action'>");
+        out.println("</form>");
 
-        response.getWriter().println("<h2>Search  Artist</h2>");
-        response.getWriter().println("<form method='post' action='artists'>");
-        response.getWriter().println("Name: <input type='text' name='name'><br>");
-        response.getWriter().println("<input type='submit' value='searchArtist' name='action'>");
-        response.getWriter().println("</form>");
+        //buscar artista
+        out.println("<h2>Search Artist</h2>");
+        out.println("<form method='post' action='artists'>");
+        out.println("Name: <input type='text' name='name'><br>");
+        out.println("<input type='submit' value='searchArtist' name='action'>");
+        out.println("</form>");
 
+        //lista de canciones
+        out.println("<h2>List Tracks</h2>");
+        out.println("<form method='post' action='artists'>");
+        out.println("<input type='submit' value='listTracks' name='action'>");
+        out.println("</form>");
 
-        response.getWriter().println("<h2>Delete Artist</h2>");
-        response.getWriter().println("<form method='post' action='artists'>");
-        response.getWriter().println("Id: <input type='number' name='id'><br>");
-        response.getWriter().println("<input type='submit' value='deleteArtist' name='action'>");
-        response.getWriter().println("</form>");
-        response.getWriter().println("</body></html>");
+        //Borrar cancion
+        out.println("<h2>Delete Track</h2>");
+        out.println("<form method='post' action='artists'>");
+        out.println("Id: <input type='number' name='id'><br>");
+        out.println("<input type='submit' value='deleteTrack' name='action'>");
+        out.println("</form>");
 
-        //poner temasen artistas
-        response.getWriter().println("<h2>Assign Track to Artist</h2>");
-        response.getWriter().println("<form method='post' action='artists'>");            
-        response.getWriter().println("Artist Name: <input type='text' name='artistName'><br>");
-        response.getWriter().println("Track Id: <input type='number' name='trackId'><br>");
-        response.getWriter().println("<input type='submit' value='assignTrack' name='action'>");
-        response.getWriter().println("</form>");   
+        //Borrar artista
+        out.println("<h2>Delete Artist</h2>");
+        out.println("<form method='post' action='artists'>");
+        out.println("Id: <input type='number' name='id'><br>");
+        out.println("<input type='submit' value='deleteArtist' name='action'>");
+        out.println("</form>");
+
+        //  pone tema a artist
+        out.println("<h2>Assign Track to Artist</h2>");
+        out.println("<form method='post' action='artists'>");
+        out.println("Artist Name: <input type='text' name='artistName'><br>");
+        out.println("Track Id: <input type='number' name='trackId'><br>");
+        out.println("<input type='submit' value='assignTrack' name='action'>");
+        out.println("</form>");
+
+        out.println("</body>");
+        out.println("</html>");
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -113,6 +139,13 @@ public class ArtistServlet extends HttpServlet{
             case "assignTrack":
                 doAssignTrack(request, response);
                 break;
+            case "deleteTrack":
+                doDeleteTrack(request, response);
+                break;
+            case "createTrack":
+                doCreateTrack(request, response);
+                break;
+
             default:
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action: " + action);
         }
@@ -284,4 +317,54 @@ public class ArtistServlet extends HttpServlet{
         response.getWriter().println("<a href='" + request.getContextPath() + "/artists'>Back</a>");
     }
 
+    public void doDeleteTrack(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        TrackService trackService = context.getBean(TrackService.class);
+
+        String idStr = request.getParameter("id");
+        if (idStr == null || idStr.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id is required");
+            return;
+        }
+        Integer id;
+
+        try {
+            id = Integer.parseInt(idStr);
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id must be a number");
+            return;
+        }
+
+        boolean deleted = trackService.deleteTrack(id);
+        response.setContentType("text/html");
+        response.getWriter().println(deleted ? "<p>Track deleted successfully</p>" : "<p>Track not found</p>");
+        response.getWriter().println("<a href='" + request.getContextPath() + "/artists'>Back</a>");
+    }
+
+    public void doCreateTrack(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        TrackService trackService = context.getBean(TrackService.class);
+        ArtistService artistService = context.getBean(ArtistService.class);
+
+        String title = request.getParameter("title");
+        String albumTitle = request.getParameter("album");
+        String genre = request.getParameter("genre");
+        String durationStr = request.getParameter("duration");
+
+        if (title == null || title.isEmpty() || albumTitle == null || albumTitle.isEmpty() ||
+            genre == null || genre.isEmpty() || durationStr == null || durationStr.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "All fields are required");
+            return;
+        }
+
+        int duration;
+        try {
+            duration = Integer.parseInt(durationStr);
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Duration must be a number");
+            return;
+        }
+
+        trackService.createTrack(new com.example.model.Track(title, genre, duration, albumTitle));
+
+        response.sendRedirect(request.getContextPath() + "/artists");
+    }
 }
