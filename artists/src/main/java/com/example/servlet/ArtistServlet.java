@@ -1,6 +1,7 @@
 package com.example.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +10,7 @@ import org.springframework.context.ApplicationContext;
 import com.example.context.ContextSingleton;
 import com.example.model.Artist;
 import com.example.model.Track;
+import com.example.services.IArtistService;
 import com.example.services.impl.ArtistService;
 import com.example.services.impl.TrackService;
 
@@ -28,43 +30,71 @@ public class ArtistServlet extends HttpServlet{
 
     }
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        response.setContentType("text/html");
-        response.getWriter().println("<h2>Create Artist</h2>");
-        response.getWriter().println("<form method='post' action='artists'>");
-        response.getWriter().println("Name: <input type='text' name='name'><br>");
-        response.getWriter().println("Nationality: <input type='text' name='nationality'><br>");
-        response.getWriter().println("<input type='submit' value='createArtist' name='action'>");
-        response.getWriter().println("</form>");
-        response.getWriter().println("<h2>Busca un Artista</h2>");
-        response.getWriter().println("<form method='post' action='artists'>");
-        response.getWriter().println("Name: <input type='text' name='name'><br>");
-        response.getWriter().println("<input type='submit' value='searchArtist' name='action'>");
-        response.getWriter().println("</form>");
-        response.getWriter().println("<h2>Eliminar Artista</h2>");
-        response.getWriter().println("<form method='post' action='artists'>");
-        response.getWriter().println("Id: <input type='number' name='id'><br>");
-        response.getWriter().println("<input type='submit' value='deleteArtist' name='action'>");
-        response.getWriter().println("</form>");
-        response.getWriter().println("</body></html>");
-        response.getWriter().println("<h2>List Tracks</h2>");
-        response.getWriter().println("<form method='post' action='artists'>");
-        response.getWriter().println("<input type='submit' value='listTracks' name='action'>");
-        response.getWriter().println("</form>");
-        response.getWriter().println("<h2>Delete Track</h2>");
-        response.getWriter().println("<form method='post' action='artists'>");
-        response.getWriter().println("Id: <input type='number' name='id'><br>");
-        response.getWriter().println("<input type='submit' value='deleteTrack' name='action'>");
-        response.getWriter().println("</form>");
-        response.getWriter().println("<h2>Assign Track to Artist</h2>");
-        response.getWriter().println("<form method='post' action='artists'>");            
-        response.getWriter().println("Artist Name: <input type='text' name='artistName'><br>");
-        response.getWriter().println("Track Id: <input type='number' name='trackId'><br>");
-        response.getWriter().println("<input type='submit' value='assignTrack' name='action'>");
-        response.getWriter().println("</form>");   
-        
+    IArtistService artistService = context.getBean(IArtistService.class);
+    List<Artist> artists = artistService.getAll();
+
+    response.setContentType("text/html");
+    PrintWriter out = response.getWriter();
+
+    out.println("<html>");
+    out.println("<head><title>Artists</title></head>");
+    out.println("<body>");
+
+    out.println("<h1>Artists List</h1>");
+    out.println("<table border='1'>");
+    out.println("<tr><th>ID</th><th>Name</th><th>Nationality</th></tr>");
+
+    for (Artist a : artists) {
+        out.println("<tr>");
+        out.println("<td>" + a.getId() + "</td>");
+        out.println("<td>" + a.getName() + "</td>");
+        out.println("<td>" + a.getNationality() + "</td>");
+        out.println("</tr>");
     }
+    out.println("</table>");
+    out.println("<hr>");
+
+    out.println("<h2>Create Artist</h2>");
+    out.println("<form method='post' action='artists'>");
+    out.println("Name: <input type='text' name='name'><br>");
+    out.println("Nationality: <input type='text' name='nationality'><br>");
+    out.println("<input type='submit' value='createArtist' name='action'>");
+    out.println("</form>");
+
+    out.println("<h2>Search Artist</h2>");
+    out.println("<form method='post' action='artists'>");
+    out.println("Name: <input type='text' name='name'><br>");
+    out.println("<input type='submit' value='searchArtist' name='action'>");
+    out.println("</form>");
+
+    out.println("<h2>Delete Artist</h2>");
+    out.println("<form method='post' action='artists'>");
+    out.println("Id: <input type='number' name='id'><br>");
+    out.println("<input type='submit' value='deleteArtist' name='action'>");
+    out.println("</form>");
+
+    out.println("<h2>List Tracks</h2>");
+    out.println("<form method='post' action='artists'>");
+    out.println("<input type='submit' value='listTracks' name='action'>");
+    out.println("</form>");
+
+    out.println("<h2>Delete Track</h2>");
+    out.println("<form method='post' action='artists'>");
+    out.println("Id: <input type='number' name='id'><br>");
+    out.println("<input type='submit' value='deleteTrack' name='action'>");
+    out.println("</form>");
+
+    out.println("<h2>Assign Track to Artist</h2>");
+    out.println("<form method='post' action='artists'>");
+    out.println("Artist Name: <input type='text' name='artistName'><br>");
+    out.println("Track Id: <input type='number' name='trackId'><br>");
+    out.println("<input type='submit' value='assignTrack' name='action'>");
+    out.println("</form>");
+
+    out.println("</body></html>");
+}
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 

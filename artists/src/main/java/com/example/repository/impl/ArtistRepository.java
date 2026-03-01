@@ -26,7 +26,8 @@ public class ArtistRepository implements IArtistRepository {
     public ArtistRepository(ITrackRepository trackRepository) {
         this.trackRepository = trackRepository;
     }
-//use iag
+
+    //use iag
     @PostConstruct
     public void init() {
         artists = new ArrayList<>();
@@ -90,9 +91,13 @@ public class ArtistRepository implements IArtistRepository {
         for (int i = 0; i < allTracks.size(); i++) {
             Track t = allTracks.get(i);
 
-            Artist a = new Artist(artistByTrack[i], "Unknown");
+            String artistName = artistByTrack[i];
+            String nationality = nationalityOf(artistName);
+
+            Artist a = new Artist(artistName, nationality);
             a.setId(counter++);
             a.setTracks(new ArrayList<>());
+
 
             a.getTracks().add(t);
             if (t.getArtists() == null) t.setArtists(new ArrayList<>());
@@ -100,6 +105,59 @@ public class ArtistRepository implements IArtistRepository {
 
             artists.add(a);
         }
+    }
+
+    private String nationalityOf(String artistName) {
+        return switch (artistName) {
+            case "Michael Jackson" -> "USA";
+            case "Nirvana" -> "USA";
+            case "Queen" -> "UK";
+            case "Bob Dylan" -> "USA";
+            case "John Lennon" -> "UK";
+            case "The Beatles" -> "UK";
+            case "Eagles" -> "USA";
+            case "Led Zeppelin" -> "UK";
+            case "Guns N’ Roses" -> "USA";
+            case "Oasis" -> "UK";
+            case "Leonard Cohen" -> "Canada";
+            case "Adele" -> "UK";
+            case "Ed Sheeran" -> "UK";
+            case "The Weeknd" -> "Canada";
+            case "Mark Ronson ft. Bruno Mars" -> "UK/USA";
+            case "Bee Gees" -> "UK/Australia";
+            case "ABBA" -> "Sweden";
+            case "Whitney Houston" -> "USA";
+            case "Céline Dion" -> "Canada";
+            case "Britney Spears" -> "USA";
+            case "Beyoncé" -> "USA";
+            case "Beyoncé ft. Jay-Z" -> "USA";
+            case "Eminem" -> "USA";
+            case "Dr. Dre ft. Snoop Dogg" -> "USA";
+            case "The Notorious B.I.G." -> "USA";
+            case "2Pac ft. Dr. Dre" -> "USA";
+            case "Kendrick Lamar" -> "USA";
+            case "Drake" -> "Canada";
+            case "Billie Eilish" -> "USA";
+            case "a-ha" -> "Norway";
+            case "The Police" -> "UK";
+            case "Toto" -> "USA";
+            case "Bon Jovi" -> "USA";
+            case "AC/DC" -> "Australia";
+            case "Prince" -> "USA";
+            case "Stevie Wonder" -> "USA";
+            case "Marvin Gaye" -> "USA";
+            case "Aretha Franklin" -> "USA";
+            case "Bob Marley & The Wailers" -> "Jamaica";
+            case "Celia Cruz" -> "Cuba";
+            case "Daddy Yankee" -> "Puerto Rico";
+            case "Luis Fonsi ft. Daddy Yankee" -> "Puerto Rico";
+            case "Shakira ft. Wyclef Jean" -> "Colombia/USA";
+            case "Santana ft. Rob Thomas" -> "USA";
+            case "Coldplay" -> "UK";
+            case "The White Stripes" -> "USA";
+            case "Daft Punk ft. Pharrell Williams" -> "France/USA";
+            default -> "Unknown";
+        };
     }
 
     @Override
@@ -133,15 +191,12 @@ public class ArtistRepository implements IArtistRepository {
                 }
             }
         }
+
         return artists.removeIf(ar -> ar.getId().equals(id));
     }
 
     @Override
     public List<Track> getArtistsTracks(String name) {
-        Optional<Artist> artistOpt = findByName(name);
-        if (artistOpt.isPresent()) {
-            return artistOpt.get().getTracks();
-        }
-        return List.of();
+        return findByName(name).map(Artist::getTracks).orElse(List.of());
     }
 }
